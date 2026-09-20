@@ -1,0 +1,4 @@
+flask>=2.3.0
+flask-sqlalchemy>=3.0.0
+flask-restful>=0.3.10
+matplotlib>=3.7.0

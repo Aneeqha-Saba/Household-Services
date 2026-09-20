@@ -1,0 +1,44 @@
+*{
+    margin: 0px;
+}
+
+#container, #panel{
+    border: 2px solid black;
+}
+
+#panel{
+    width: 80%;
+    margin: auto;
+    height: 1000px;
+}
+
+#input-form{
+    border: 1px solid blue;
+    width: 600px;
+    height: 900px;
+    margin: auto;
+    margin-top: 50px;
+    border-radius: 20px;
+    padding: 10px;
+}
+
+#frontpage{
+    text-align: center;
+    padding-top: 100px;
+    font-size: 50px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #ddd; /* Makes a nice grid border */
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+}

@@ -1,0 +1,266 @@
+<!DOCTYPE html>	
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- Third party Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>Customer Dashboard</title>
+</head>
+<body style="background-color:rgb(179, 230, 176);">
+    <div id="container">
+        <div id="panel" style="height: auto;">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <label> Welcome {{name}}!! </label>
+                    <div class="d-flex-md-end">
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="navbar-nav">
+                                <li class="nav-item">
+                                    <a class="nav-link active" aria-current="page" href="/customer/home">Home</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/customer/search">Search</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/customer/summary">Summary</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/logout">Logout</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <div class="container mt-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3>Book Services</h3>
+                    <button class="btn btn-link" data-bs-toggle="modal" data-bs-target="#profileModal">Profile</button>
+                </div>
+            <div class="row">
+                {% if services_with_professionals %}
+                    {% for entry in services_with_professionals %}
+                        <div class="col-md-3 mb-3">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <!-- Button trigger modal -->
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#serviceModal{{ entry.service.id }}">
+                                        <h5>{{ entry.service.name }}</h5>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal for each service -->
+                        <div class="modal fade" id="serviceModal{{ entry.service.id }}" tabindex="-1" aria-labelledby="serviceModalLabel{{ entry.service.id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="serviceModalLabel{{ entry.service.id }}">{{ entry.service.name }} Professionals - Rs. {{ entry.service.price }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <ul>
+                                            {% if entry.professionals %}
+                                                {% for professional in entry.professionals %}
+                                                <li style="display: flex; align-items: center; justify-content: space-between;">
+                                                    <span>{{ professional.fullname }} - {{ professional.specification }} - {{ professional.avg_rating | default(0) }} ☆</span>
+                                                    <form method="POST" action="/customer/service/request" style="margin: 0;">
+                                                        <input type="hidden" name="service_id" value="{{ entry.service.id }}">
+                                                        <input type="hidden" name="professional_id" value="{{ professional.id }}">
+                                                        <button type="submit" class="btn btn-link">Book</button>
+                                                    </form>
+                                                </li>
+                                                {% endfor %}
+                                            {% else %}
+                                                <li>No professionals available for this service.</li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No services available at the moment.</p>
+                {% endif %}
+            </div>
+            </div>
+            <!--Modal End-->
+
+            <!--Modal to edit profile-->
+            <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <form method="POST" action="/customer/update_profile">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editServiceModalLabel">Edit Profile</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="edit_fullname" class="form-label">Full Name:</label>
+                                    <input type="text" class="form-control" id="edit_fullname" name="fullname" value="{{ customer.fullname }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit_password" class="form-label">Password:</label>
+                                    <input type="password" class="form-control" id="edit_password" name="password" value="{{ customer.password }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit_phone" class="form-label">Phone Number:</label>
+                                    <input type="text" class="form-control" id="edit_phone" name="phone" value="{{ customer.phone }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit_address" class="form-label">Address:</label>
+                                    <input type="text" class="form-control" id="edit_address" name="address" value="{{ customer.address }}" required>
+                                </div>
+                                <div class="mb-3">	
+                                    <label for="edit_pincode" class="form-label">Pin Code:</label>
+                                    <input type="text" class="form-control" id="edit_pincode" name="pincode" value="{{ customer.pincode }}" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Save changes</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+<script>
+    $('#profileModal').on('show.bs.modal', function () {
+        var modal = $(this);
+        modal.find('#edit_fullname').val("{{ name }}");
+        modal.find('#edit_password').val("{{ customer.password }}");
+        modal.find('#edit_phone').val("{{ customer.phone }}");
+        modal.find('#edit_address').val("{{ customer.address }}");
+        modal.find('#edit_pincode').val("{{ customer.pincode }}");
+});
+</script>
+
+            <!-- Modal End -->
+        
+            <div class="container mt-4">
+            <h3>Service History</h3>
+{% if service_history %}
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th scope="col" style="width: 10%;">ID</th>
+                <th scope="col" style="width: 20%;">Service Name</th>
+                <th scope="col" style="width: 20%;">Type of Service</th>
+                <th scope="col" style="width: 20%;">Professional Name</th>
+                <th scope="col" style="width: 20%;">Phone No.</th>
+                <th scope="col" style="width: 30%;">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service_request in service_history %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ service_request.service.name }}</td>
+                    <td>{{ service_request.professional.specification }}</td>
+                    <td>{{ service_request.professional.fullname }}</td>
+                    <td>{{ service_request.professional.phone }}</td>
+                    {% if service_request.status == 'Accepted' %}
+                    <td>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#remarksModal" data-service-id="{{ service_request.id }}">
+                            Close it?
+                        </button>                        
+                    </td>
+                    {% elif service_request.status == 'Closed' %}
+                    <td><span class="badge bg-success">Closed</span></td>
+                    {% elif service_request.professional.is_blocked %}
+                    <td><span class="badge bg-danger">{{ service_request.professional.fullname }} Not Available.</span></td>
+                    {% else %}
+                    <td>{{ service_request.status }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No service history available.</p>
+{% endif %}
+
+<!-- Modal for reviews-->
+<div class="modal fade" id="remarksModal" tabindex="-1" aria-labelledby="remarksModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="remarksModalLabel">Service Remarks</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/customer/service/history" method="POST">
+                    {% for service_request in service_history %}
+                    {% if service_request.status == 'Accepted' %}
+                    <div class="mb-3">
+                        <label><b>Request ID:</b> {{ service_request.id }}</label>
+                        <input type="hidden" name="service_request_id" value="{{ service_request.id }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="serviceName"><b>Service Name:</b> {{ service_request.service.name }}</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="professionalId"><b>Professional ID:</b></label>
+                        <input type="text" id="professionalId" name="professionalId" value="{{ service_request.professional.id }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="professionalName"><b>Professional Name:</b></label>
+                        <input type="text" id="professionalName" name="professionalName" value="{{ service_request.professional.fullname }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone"><b>Contact No:</b></label>
+                        <input type="text" id="phone" name="phone" value="{{ service_request.professional.phone }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                    <div class="mb-3 rate">
+                        <label for="rating"><b>Rate the service</b></label>
+                        <div class="rating">
+                            <input type="radio" name="rating" value="5" id="5"><label for="5">5 ☆</label>
+                            <input type="radio" name="rating" value="4" id="4"><label for="4">4 ☆</label>
+                            <input type="radio" name="rating" value="3" id="3"><label for="3">3 ☆</label>
+                            <input type="radio" name="rating" value="2" id="2"><label for="2">2 ☆</label>
+                            <input type="radio" name="rating" value="1" id="1"><label for="1">1 ☆</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="remarks" class="form-label"><b>Remarks (if any)</b></label>
+                        <textarea class="form-control" id="remarks" name="remarks" rows="3"></textarea>
+                    </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var remarksModal = document.getElementById('remarksModal');
+    remarksModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget; 
+        var serviceId = button.getAttribute('data-service-id'); 
+        var inputServiceId = remarksModal.querySelector('input[name="service_request_id"]');
+        inputServiceId.value = serviceId;
+    });
+</script>
+
+<!-- Modal End -->
+
+
+
+            </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
